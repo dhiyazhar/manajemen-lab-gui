@@ -1,6 +1,7 @@
 import customtkinter
 from side_menu import *
 from penggunaan import *
+from peralatan import *
 
 class App(customtkinter.CTk): 
     def __init__(self):
@@ -20,7 +21,7 @@ class App(customtkinter.CTk):
 
         self.welcome_frame = self.welcome_frame()
         self.penggunaan_frame = Penggunaan(self.main_frame)
-        self.peralatan_frame = self.create_peralatan_frame()
+        self.peralatan_frame = Peralatan(self.main_frame)
         self.user_frame = self.create_user_frame()
 
         self.current_frame = self.welcome_frame
@@ -38,11 +39,11 @@ class App(customtkinter.CTk):
     #     label.place(relx=0.5, rely=0.5, anchor="center")
     #     return frame
 
-    def create_peralatan_frame(self):
-        frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
-        label = customtkinter.CTkLabel(frame, text="Peralatan Content", font=customtkinter.CTkFont(size=40))
-        label.place(relx=0.5, rely=0.5, anchor="center")
-        return frame
+    # def create_peralatan_frame(self):
+    #     frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
+    #     label = customtkinter.CTkLabel(frame, text="Peralatan Content", font=customtkinter.CTkFont(size=40))
+    #     label.place(relx=0.5, rely=0.5, anchor="center")
+    #     return frame
 
     def create_user_frame(self):
         frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
