@@ -1,3 +1,5 @@
+# My Virtual Environment
+pbo/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
