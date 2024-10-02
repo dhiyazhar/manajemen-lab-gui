@@ -19,7 +19,7 @@ class App(customtkinter.CTk):
         self.main_frame.grid_rowconfigure(0, weight=1)
 
         self.welcome_frame = self.welcome_frame()
-        self.penggunaan_frame = Penggunaan()
+        self.penggunaan_frame = Penggunaan(self.main_frame)
         self.peralatan_frame = self.create_peralatan_frame()
         self.user_frame = self.create_user_frame()
 
@@ -27,7 +27,7 @@ class App(customtkinter.CTk):
         self.current_frame.grid(row=0, column=0, sticky="nsew")
 
     def welcome_frame(self):
-        frame = customtkinter.CTkFrame(self.content_frame, fg_color="transparent")
+        frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
         label = customtkinter.CTkLabel(frame, text="Selamat Datang", font=customtkinter.CTkFont(size=60, weight='bold'))
         label.place(relx=0.5, rely=0.5, anchor="center")
         return frame
@@ -39,13 +39,13 @@ class App(customtkinter.CTk):
     #     return frame
 
     def create_peralatan_frame(self):
-        frame = customtkinter.CTkFrame(self.content_frame, fg_color="transparent")
+        frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
         label = customtkinter.CTkLabel(frame, text="Peralatan Content", font=customtkinter.CTkFont(size=40))
         label.place(relx=0.5, rely=0.5, anchor="center")
         return frame
 
     def create_user_frame(self):
-        frame = customtkinter.CTkFrame(self.content_frame, fg_color="transparent")
+        frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
         label = customtkinter.CTkLabel(frame, text="User Content", font=customtkinter.CTkFont(size=40))
         label.place(relx=0.5, rely=0.5, anchor="center")
         return frame
@@ -58,7 +58,7 @@ class App(customtkinter.CTk):
         if frame_name == "welcome":
             self.current_frame = self.welcome_frame
         elif frame_name == "penggunaan":
-            self.current_frame = Penggunaan()
+            self.current_frame = self.penggunaan_frame
         elif frame_name == "peralatan":
             self.current_frame = self.peralatan_frame
         elif frame_name == "user":
