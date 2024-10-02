@@ -22,10 +22,23 @@ class App(customtkinter.CTk):
         self.welcome_frame = self.welcome_frame()
         self.penggunaan_frame = Penggunaan(self.main_frame)
         self.peralatan_frame = Peralatan(self.main_frame)
-        self.user_frame = self.create_user_frame()
+        self.user_frame = self.user_frame()
 
-        self.current_frame = self.welcome_frame
-        self.current_frame.grid(row=0, column=0, sticky="nsew")
+        self.frames = {
+            "welcome": self.welcome_frame,
+            "penggunaan": self.penggunaan_frame,
+            "peralatan": self.peralatan_frame,
+            "user": self.user_frame
+        }
+
+        for frame in self.frames.values():
+            if hasattr(frame, 'hide'):
+                frame.hide()
+            else:
+                frame.grid_remove()
+
+        self.current_frame = None
+        self.switch_frame("welcome")
 
     def welcome_frame(self):
         frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
@@ -33,63 +46,32 @@ class App(customtkinter.CTk):
         label.place(relx=0.5, rely=0.5, anchor="center")
         return frame
 
-    # def create_penggunaan_frame(self):
-    #     frame = customtkinter.CTkFrame(self.content_frame, fg_color="transparent")
-    #     label = customtkinter.CTkLabel(frame, text="Penggunaan Content", font=customtkinter.CTkFont(size=40))
-    #     label.place(relx=0.5, rely=0.5, anchor="center")
-    #     return frame
-
-    # def create_peralatan_frame(self):
-    #     frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
-    #     label = customtkinter.CTkLabel(frame, text="Peralatan Content", font=customtkinter.CTkFont(size=40))
-    #     label.place(relx=0.5, rely=0.5, anchor="center")
-    #     return frame
-
-    def create_user_frame(self):
+    def user_frame(self):
         frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
         label = customtkinter.CTkLabel(frame, text="User Content", font=customtkinter.CTkFont(size=40))
         label.place(relx=0.5, rely=0.5, anchor="center")
         return frame
 
     def switch_frame(self, frame_name):
+        new_frame = self.frames[frame_name]
+
+        if self.current_frame == new_frame:
+            return
+
         # Hide the current frame
-        self.current_frame.grid_forget()
+        if self.current_frame:
+            if hasattr(self.current_frame, 'hide'):
+                self.current_frame.hide()
+            else:
+                self.current_frame.grid_remove()
 
         # Show the new frame
-        if frame_name == "welcome":
-            self.current_frame = self.welcome_frame
-        elif frame_name == "penggunaan":
-            self.current_frame = self.penggunaan_frame
-        elif frame_name == "peralatan":
-            self.current_frame = self.peralatan_frame
-        elif frame_name == "user":
-            self.current_frame = self.user_frame
+        if hasattr(new_frame, 'show'):
+            new_frame.show()
+        else:
+            new_frame.grid(row=0, column=0, sticky="nsew")
 
-        self.current_frame.grid(row=0, column=0, sticky="nsew")
-    
-    # def create_penggunaan_frame(self):
-    #     frame = customtkinter.CTkFrame(self.content_frame, fg_color="transparent")
-    #     label = customtkinter.CTkLabel(frame, text="Penggunaan", font=customtkinter.CTkFont(size=40))
-    #     label.pack(pady=20)
-        
-    #     name_label = customtkinter.CTkLabel(frame, text="Nama:")
-    #     name_label.pack()
-    #     name_entry = customtkinter.CTkEntry(frame)
-    #     name_entry.pack()
-        
-    #     date_label = customtkinter.CTkLabel(frame, text="Tanggal:")
-    #     date_label.pack()
-    #     date_entry = customtkinter.CTkEntry(frame)
-    #     date_entry.pack()
-        
-    #     submit_button = customtkinter.CTkButton(frame, text="Submit", command=self.submit_penggunaan)
-    #     submit_button.pack(pady=20)
-        
-    #     return frame
-
-    # def submit_penggunaan(self):
-    #     # Add your submission logic here
-    #     pass
+        self.current_frame = new_frame
     
 
 app = App()
