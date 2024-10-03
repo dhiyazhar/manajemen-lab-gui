@@ -61,14 +61,12 @@ class App(customtkinter.CTk):
         if self.current_frame == new_frame:
             return
 
-        # Hide the current frame
         if self.current_frame:
             if hasattr(self.current_frame, 'hide'):
                 self.current_frame.hide()
             else:
                 self.current_frame.grid_remove()
 
-        # Show the new frame
         if hasattr(new_frame, 'show'):
             new_frame.show()
         else:
