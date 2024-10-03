@@ -1,7 +1,9 @@
+import os
 import customtkinter
 from side_menu import *
 from penggunaan import *
 from peralatan import *
+from user import User
 
 customtkinter.set_appearance_mode("dark") 
 customtkinter.set_default_color_theme("blue") 
@@ -25,7 +27,7 @@ class App(customtkinter.CTk):
         self.welcome_frame = self.welcome_frame()
         self.penggunaan_frame = Penggunaan(self.main_frame)
         self.peralatan_frame = Peralatan(self.main_frame)
-        self.user_frame = self.user_frame()
+        self.user_frame = User(self.main_frame)
 
         self.frames = {
             "welcome": self.welcome_frame,
@@ -43,15 +45,17 @@ class App(customtkinter.CTk):
         self.current_frame = None
         self.switch_frame("welcome")
 
+        newpath =  r'./data'
+
+        if not os.path.exists(newpath):
+            print("Folder Data belum ada.")
+            os.makedirs(newpath)
+        else:
+            print("Folder data ada.")
+
     def welcome_frame(self):
         frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
         label = customtkinter.CTkLabel(frame, text="Selamat Datang", font=customtkinter.CTkFont(size=60, weight='bold'))
-        label.place(relx=0.5, rely=0.5, anchor="center")
-        return frame
-
-    def user_frame(self):
-        frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
-        label = customtkinter.CTkLabel(frame, text="User Content", font=customtkinter.CTkFont(size=40))
         label.place(relx=0.5, rely=0.5, anchor="center")
         return frame
 

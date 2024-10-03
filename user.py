@@ -1,7 +1,8 @@
+import os
 import customtkinter
 from penggunaan import Button
 
-class Peralatan(customtkinter.CTkFrame):
+class User(customtkinter.CTkFrame): 
     def __init__(self, master, **kwargs):
         super().__init__(master, fg_color="transparent", **kwargs)
 
@@ -27,10 +28,9 @@ class Peralatan(customtkinter.CTkFrame):
         self.tabel_wrapper = customtkinter.CTkFrame(self.tabel_pengguna_frame)
         self.tabel_wrapper.pack(fill="both", expand=True, padx=20, pady=20)
 
-
     def show(self):
         self.grid(row=0, column=0, sticky="nsew")
-        
 
     def hide(self):
         self.grid_remove()
+
