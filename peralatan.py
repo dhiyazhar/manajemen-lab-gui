@@ -1,6 +1,7 @@
 import os
 import csv
 import tkinter.ttk as ttk
+from tkinter import messagebox
 import customtkinter
 from penggunaan import Button, CustomTreeviewStyle
 
@@ -10,16 +11,18 @@ class Peralatan(customtkinter.CTkFrame):
         
         self.file_path = "./data/peralatan_lab.csv"
         
-        self.grid_columnconfigure(0, weight=1)  # Biar label memenuhi horizontal
-        self.grid_rowconfigure(1, weight=1) # Button frame tidak perlu melar
+        self.dialog = None
+        
+        self.grid_columnconfigure(0, weight=1)  
+        self.grid_rowconfigure(1, weight=1)
 
         self.button_frame = customtkinter.CTkFrame(self, fg_color="transparent")
         self.button_frame.grid(row=0, column=0, sticky="nw", padx=20, pady=(50, 0)) 
         self.button_frame.grid_columnconfigure((0, 1, 2), weight=1, uniform="kolom") 
 
-        self.b_add_inventory = Button(self.button_frame, text="Tambah Inventori Peralatan") 
-        self.b_delete_inventory = Button(self.button_frame, text="Hapus Inventori Peralatan")
-        self.b_edit_inventory = Button(self.button_frame, text="Edit Inventori Peralatan")
+        self.b_add_inventory = Button(self.button_frame, text="Tambah Inventori Peralatan", command=self.add_inventory) 
+        self.b_delete_inventory = Button(self.button_frame, text="Hapus Inventori Peralatan", command=self.delete_inventory)
+        self.b_edit_inventory = Button(self.button_frame, text="Edit Inventori Peralatan", command=self.edit_inventory)
 
         self.b_add_inventory.grid(row=0, column=0, padx=5, pady=5, sticky="nsew") 
         self.b_delete_inventory.grid(row=0, column=1, padx=5, pady=5, sticky="nsew") 
@@ -52,35 +55,234 @@ class Peralatan(customtkinter.CTkFrame):
         try:
             with open(self.file_path, 'r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
-                self.inventory_table["columns"] = tuple(reader.fieldnames)
+                file_columns = tuple(reader.fieldnames)
+                
+                self.inventory_table["columns"] = ("No.",) + file_columns
 
-                # Hitung panjang maksimum setiap kolom (dalam pixel)
-                max_width = {col: len(col) for col in reader.fieldnames}
-                for row in reader:
-                    for col in reader.fieldnames:
+                max_width = {"No.": len("No.")}
+                max_width.update({col: len(col) for col in file_columns})
+                
+                rows = list(reader)
+                for i, row in enumerate(rows, start=1):
+                    max_width["No."] = max(max_width["No."], len(str(i)))
+                    for col in file_columns:
                         max_width[col] = max(max_width[col], len(str(row[col])))
-
-                file.seek(0)
-                reader = csv.DictReader(file)
 
                 # Atur heading dan width kolom
                 total_width = sum(max_width.values())
-                for col in reader.fieldnames:
+                all_columns = ("No.",) + file_columns
+                for col in all_columns:
                     width_ratio = max_width[col] / total_width
-                    if col == 'No':
-                        # Set fixed width for No column
+                    if col == 'No.':
                         self.inventory_table.column(col, width=50, stretch=False)
-                    elif col == 'Tanggal':
-                        # Set fixed width for Tanggal column
-                        self.inventory_table.column(col, width=80, stretch=False)
+                    # elif col == 'ID':
+                    #     self.inventory_table.column(col, width=80, stretch=False)
                     else:
-                        # For other columns (like Deskripsis), adjust width proportionally
                         self.inventory_table.column(col, width=int(width_ratio * 800), stretch=True)
                     self.inventory_table.heading(col, text=col.title())
 
-                # Masukkan data ke Treeview
-                for row in reader:
-                    self.inventory_table.insert("", "end", values=tuple(row.values()))
+                for i, row in enumerate(rows, start=1):
+                    self.inventory_table.insert("", "end", values=(i,) + tuple(row.values()))
 
         except FileNotFoundError:
             print(f"File {self.file_path} tidak ditemukan.")   
+            
+    def add_inventory(self):
+        if self.dialog is None or not self.dialog.winfo_exists():
+            self.dialog = TambahPeralatanDialog(self)
+            self.dialog.grab_set()  
+            self.wait_window(self.dialog)
+        if self.dialog.result:
+            self.add_csv(self.dialog.result)
+            self.load_data()  
+        else:
+            self.dialog.focus()
+    
+    def add_csv(self, data):
+        try:
+            with open(self.file_path, 'a', newline='', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                writer.writerow(data)
+            messagebox.showinfo("Sukses", "Data inventori peralatan berhasil ditambahkan.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Gagal menambahkan data: {str(e)}")
+    
+    def delete_inventory(self):
+        selected_item = self.inventory_table.selection()
+        if not selected_item:
+            messagebox.showwarning("Peringatan", "Pilih data yang ingin dihapus terlebih dahulu.")
+            return
+        
+        confirm = messagebox.askyesno("Konfirmasi", "Hapus Data?")
+        if confirm:
+            item_values = self.inventory_table.item(selected_item)['values']
+            self.delete_csv(item_values[1:])  # Skip the "No." column
+    
+    def delete_csv(self, row_data):
+        temp_file = self.file_path + '.tmp'
+        try:
+            with open(self.file_path, 'r', newline='', encoding='utf-8') as file, \
+                open(temp_file, 'w', newline='', encoding='utf-8') as temp:
+                reader = csv.reader(file)
+                writer = csv.writer(temp)
+                header = next(reader)
+                writer.writerow(header)
+                deleted = False
+                for row in reader:
+                    if row != row_data:
+                        writer.writerow(row)
+                        print(f"data deleted false {row}")
+                    else:
+                        deleted = True
+                        print(f"data deleted true {row}")
+            
+            os.replace(temp_file, self.file_path)
+            
+            if deleted:
+                messagebox.showinfo("Sukses", "Data penggunaan berhasil dihapus.")
+                self.load_data()  # Refresh the table
+            else:
+                messagebox.showwarning("Peringatan", "Data tidak ditemukan.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Gagal menghapus data: {str(e)}")
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
+    
+    def edit_inventory(self):
+        selected_item = self.inventory_table.selection()
+        if not selected_item:
+            messagebox.showwarning("Peringatan", "Pilih data yang ingin diedit terlebih dahulu.")
+            return
+        
+        item_values = self.inventory_table.item(selected_item)['values']
+        if self.dialog is None or not self.dialog.winfo_exists():
+            self.dialog = EditPenggunaanDialog(self, item_values[1:])  # Skip the "No." column
+            self.dialog.grab_set()
+            self.wait_window(self.dialog)
+        if self.dialog.result:
+            self.update_csv(item_values[1:], self.dialog.result)
+            self.load_data()  # Refresh the table after editing data
+        else:
+            self.dialog.focus()
+    
+    def update_csv(self, old_data, new_data):
+        temp_file = self.file_path + '.tmp'
+        try:
+            with open(self.file_path, 'r', newline='', encoding='utf-8') as file, \
+                 open(temp_file, 'w', newline='', encoding='utf-8') as temp:
+                reader = csv.reader(file)
+                writer = csv.writer(temp)
+                header = next(reader)
+                writer.writerow(header)
+                updated = False
+                for row in reader:
+                    if row == old_data:
+                        writer.writerow(new_data)
+                        updated = True
+                    else:
+                        writer.writerow(row)
+            
+            os.replace(temp_file, self.file_path)
+            
+            if updated:
+                messagebox.showinfo("Sukses", "Data penggunaan berhasil diperbarui.")
+                self.load_data() 
+            else:
+                messagebox.showwarning("Peringatan", "Data tidak ditemukan.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Gagal memperbarui data: {str(e)}")
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
+    
+class TambahPeralatanDialog(customtkinter.CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Tambah Penggunaan")
+        self.geometry("500x480")
+        self.result = None
+
+        # self.id_label = customtkinter.CTkLabel(self, text="ID:")
+        # self.id_label.pack(pady=(10, 0))
+        # self.id_entry = customtkinter.CTkEntry(self)
+        # self.id_entry.pack(pady=(0, 10))
+
+        self.nama_label = customtkinter.CTkLabel(self, text="Nama:")
+        self.nama_label.pack()
+        self.nama_entry = customtkinter.CTkEntry(self)
+        self.nama_entry.pack(pady=(0, 10))
+
+        self.status_label = customtkinter.CTkLabel(self, text="Status:")
+        self.status_label.pack()
+        self.status_combobox = customtkinter.CTkComboBox(self, values=["Baik", "Rusak Ringan", "Rusak Berat"])
+        self.status_combobox.pack(pady=(0, 10))
+
+        self.jumlah_label = customtkinter.CTkLabel(self, text="Jumlah:")
+        self.jumlah_label.pack()
+        self.jumlah_entry = customtkinter.CTkEntry(self)
+        self.jumlah_entry.pack(pady=(0, 10))
+
+        self.submit_button = customtkinter.CTkButton(self, text="Submit", command=self.submit)
+        self.submit_button.pack(pady=10)
+
+    def submit(self):
+        # id = self.id_entry.get()
+        nama = self.nama_entry.get()
+        status = self.status_combobox.get()
+        # jumlah = self.jumlah_entry.get()
+
+        if not all([nama, status, jumlah]):
+            messagebox.showerror("Error", "Semua field harus diisi.")
+            return
+        
+        try:
+            jumlah = int(jumlah)
+        except ValueError:
+            messagebox.showerror("Error", "Jumlah harus berupa angka.")
+            return
+
+        self.result = [nama, status, jumlah]
+        self.destroy()
+
+class EditPenggunaanDialog(customtkinter.CTkToplevel):
+    def __init__(self, parent, data):
+        super().__init__(parent)
+        self.title("Edit Penggunaan")
+        self.geometry("500x480")
+        self.result = None
+
+        self.nama_label = customtkinter.CTkLabel(self, text="Nama:")
+        self.nama_label.pack(pady=(10, 0))
+        self.nama_entry = customtkinter.CTkEntry(self)
+        self.nama_entry.insert(0, data[0])
+        self.nama_entry.pack(pady=(0, 10))
+
+        self.status_label = customtkinter.CTkLabel(self, text="Status:")
+        self.status_label.pack()
+        self.status_combobox = customtkinter.CTkComboBox(self, values=["Baik", "Rusak Ringan", "Rusak Berat"])
+        self.status_combobox.set(data[1])
+        self.status_combobox.pack(pady=(0, 10))
+
+        # self.jumlah_label = customtkinter.CTkLabel(self, text="Jumlah:")
+        # self.jumlah_label.pack()
+        # self.jumlah_entry = customtkinter.CTkEntry(self)
+        # self.jumlah_entry.insert(0, data[2])
+        # self.jumlah_entry.pack(pady=(0, 10))
+
+        self.submit_button = customtkinter.CTkButton(self, text="Update", command=self.submit)
+        self.submit_button.pack(pady=10)
+
+    def submit(self):
+        nama = self.nama_entry.get()
+        status = self.status_combobox.get()
+        # jumlah = self.jumlah_entry.get()
+
+        if not all([nama, status]):
+            messagebox.showerror("Error", "Semua field harus diisi.")
+            return
+
+        self.result = [nama, status]
+        self.destroy()
+            
+        
+        
+                        
