@@ -1,5 +1,5 @@
 
-Simple CRUD application using Python and Tkinter's custom style, customtkinter.
+**Simple CRUD application using Python and Tkinter's custom style, customtkinter.**
 
 ## Installation
 
