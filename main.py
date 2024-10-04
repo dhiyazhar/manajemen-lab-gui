@@ -1,4 +1,5 @@
 import os
+import csv
 import customtkinter
 from side_menu import *
 from penggunaan import *
@@ -13,6 +14,8 @@ class App(customtkinter.CTk):
         super().__init__()
         self.title("Manajemen Lab RPL")
         self.geometry(f"{1100}x{580}")
+        
+        self.cek_file_dir()
     
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -45,14 +48,6 @@ class App(customtkinter.CTk):
         self.current_frame = None
         self.switch_frame("welcome")
 
-        newpath =  r'./data'
-
-        if not os.path.exists(newpath):
-            print("Folder Data belum ada.")
-            os.makedirs(newpath)
-        else:
-            print("Folder data ada.")
-
     def welcome_frame(self):
         frame = customtkinter.CTkFrame(self.main_frame, fg_color="transparent")
         label = customtkinter.CTkLabel(frame, text="Selamat Datang", font=customtkinter.CTkFont(size=60, weight='bold'))
@@ -77,6 +72,35 @@ class App(customtkinter.CTk):
             new_frame.grid(row=0, column=0, sticky="nsew")
 
         self.current_frame = new_frame
+        
+    def cek_file_dir(self):
+        
+        data_path = "./data/" 
+        
+        if not os.path.exists(data_path):
+            os.makedirs(data_path)
+            
+            files = {
+                    "penggunaan_lab.csv": ["Tanggal", "Kelas", "Dosen", "Penanggung Jawab", "Deskripsi", "Penggunaan"],
+                    "peralatan_lab.csv": ["ID", "Nama", "Status", "Jumlah"],
+                    "user.csv": ["Nama", "Status", "Jabatan"]
+                    }
+            
+            for file_name, fields in files.items():
+                file_path = os.path.join(data_path, file_name)
+                
+                with open(file_path, 'w', newline='') as file: 
+                    writer = csv.writer(file)
+                    writer.writerow(fields)
+                
+        else:
+            print("Folder dan File sudah ada.")     
+            
+            
+        
+        
+        
+         
     
 
 app = App()
