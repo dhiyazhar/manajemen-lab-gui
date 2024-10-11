@@ -1,4 +1,5 @@
 import os
+import traceback
 import csv
 from datetime import datetime
 import customtkinter
@@ -159,17 +160,23 @@ class Penggunaan(customtkinter.CTkFrame):
         if not selected_item:
             messagebox.showwarning("Peringatan", "Pilih data yang ingin diedit terlebih dahulu.")
             return
-        
+
         item_values = self.table.item(selected_item)['values']
-        if self.dialog is None or not self.dialog.winfo_exists():
-            self.dialog = EditPenggunaanDialog(self, item_values[1:])  # Skip the "No." column
-            self.dialog.grab_set()
-            self.wait_window(self.dialog)
-        if self.dialog.result:
-            self.update_csv(item_values[1:], self.dialog.result)
-            self.load_data()  # Refresh the table after editing data
-        else:
-            self.dialog.focus()
+        self.edit_dialog(item_values[1:]) 
+
+    def edit_dialog(self, data):
+        try:
+            dialog = EditPenggunaanDialog(self, data)
+            dialog.wait_visibility()
+            dialog.grab_set()  
+            self.wait_window(dialog)  
+            if dialog.result:
+                self.update_csv(data, dialog.result)
+                self.load_data() 
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            traceback.print_exc()
+
     
     def update_csv(self, old_data, new_data):
         temp_file = self.file_path + '.tmp'

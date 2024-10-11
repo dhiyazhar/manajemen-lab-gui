@@ -156,17 +156,17 @@ class Peralatan(customtkinter.CTkFrame):
             return
         
         item_values = self.inventory_table.item(selected_item)['values']
-        self.open_edit_dialog(item_values[1:])  # Skip the "No." column
+        self.edit_dialog(item_values[1:])  
 
-    def open_edit_dialog(self, data):
+    def edit_dialog(self, data):
         try:
             dialog = EditPeralatanDialog(self, data)
-            dialog.wait_visibility()  # Wait for the dialog to be visible
-            dialog.grab_set()  # Set the grab
-            self.wait_window(dialog)  # Wait for the dialog to be closed
+            dialog.wait_visibility()  
+            dialog.grab_set()  
+            self.wait_window(dialog)  
             if dialog.result:
                 self.update_csv(data, dialog.result)
-                self.load_data()  # Refresh the table after editing data
+                self.load_data()  
         except Exception as e:
             print(f"An error occurred: {e}")
             traceback.print_exc()

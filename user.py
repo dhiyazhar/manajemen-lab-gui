@@ -1,4 +1,5 @@
 import os
+import traceback
 import csv
 import customtkinter
 import tkinter.ttk as ttk
@@ -148,21 +149,26 @@ class User(customtkinter.CTkFrame):
                 os.remove(temp_file)
     
     def edit_user(self):
-        selected_user = self.user_table.selection()
-        if not selected_user:
+        selected_item = self.user_table.selection()
+        if not selected_item:
             messagebox.showwarning("Peringatan", "Pilih data yang ingin diedit terlebih dahulu.")
             return
-        
-        user_values = self.user_table.item(selected_user)['values']
-        if self.dialog is None or not self.dialog.winfo_exists():
-            self.dialog = EditUserDialog(self, user_values[1:])  
-            self.dialog.grab_set()
-            self.wait_window(self.dialog)
-        if self.dialog.result:
-            self.update_csv(user_values[1:], self.dialog.result)
-            self.load_data() 
-        else:
-            self.dialog.focus()
+
+        item_values = self.user_table.item(selected_item)['values']
+        self.open_edit_dialog(item_values[1:]) 
+
+    def open_edit_dialog(self, data):
+        try:
+            dialog = EditUserDialog(self, data)
+            dialog.wait_visibility() 
+            dialog.grab_set()  
+            self.wait_window(dialog)  
+            if dialog.result:
+                self.update_csv(data, dialog.result)
+                self.load_data()  
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            traceback.print_exc()
     
     def update_csv(self, old_data, new_data):
         temp_file = self.file_path + '.tmp'
