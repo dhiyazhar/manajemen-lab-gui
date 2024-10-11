@@ -13,8 +13,8 @@ class Penggunaan(customtkinter.CTkFrame):
         
         self.dialog = None       
         
-        self.grid_columnconfigure(0, weight=1)  # Biar label memenuhi horizontal
-        self.grid_rowconfigure(1, weight=1) # Button frame tidak perlu melar
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
 
         self.button_frame = customtkinter.CTkFrame(self, fg_color="transparent")
         self.button_frame.grid(row=0, column=0, sticky="nw", padx=20, pady=(50, 0)) 
@@ -93,7 +93,7 @@ class Penggunaan(customtkinter.CTkFrame):
 
                     
         except FileNotFoundError:
-            print(f"File {self.filepath} tidak ditemukan.")
+            print(f"File {self.file_path} tidak ditemukan.")
     
     def tambah_penggunaan(self):
         if self.dialog is None or not self.dialog.winfo_exists():
@@ -294,6 +294,8 @@ class EditPenggunaanDialog(customtkinter.CTkToplevel):
 
         self.submit_button = customtkinter.CTkButton(self, text="Update", command=self.submit)
         self.submit_button.pack(pady=10)
+
+        self.after(100, self.grab_set)
 
     def submit(self):
         tanggal = self.tanggal_entry.get()

@@ -1,4 +1,5 @@
 import os
+import traceback
 import csv
 import tkinter.ttk as ttk
 from tkinter import messagebox
@@ -139,7 +140,7 @@ class Peralatan(customtkinter.CTkFrame):
             os.replace(temp_file, self.file_path)
             
             if deleted:
-                messagebox.showinfo("Sukses", "Data penggunaan berhasil dihapus.")
+                messagebox.showinfo("Sukses", "Data peralatan berhasil dihapus.")
                 self.load_data()  # Refresh the table
             else:
                 messagebox.showwarning("Peringatan", "Data tidak ditemukan.")
@@ -155,15 +156,20 @@ class Peralatan(customtkinter.CTkFrame):
             return
         
         item_values = self.inventory_table.item(selected_item)['values']
-        if self.dialog is None or not self.dialog.winfo_exists():
-            self.dialog = EditPenggunaanDialog(self, item_values[1:])  # Skip the "No." column
-            self.dialog.grab_set()
-            self.wait_window(self.dialog)
-        if self.dialog.result:
-            self.update_csv(item_values[1:], self.dialog.result)
-            self.load_data()  # Refresh the table after editing data
-        else:
-            self.dialog.focus()
+        self.open_edit_dialog(item_values[1:])  # Skip the "No." column
+
+    def open_edit_dialog(self, data):
+        try:
+            dialog = EditPeralatanDialog(self, data)
+            dialog.wait_visibility()  # Wait for the dialog to be visible
+            dialog.grab_set()  # Set the grab
+            self.wait_window(dialog)  # Wait for the dialog to be closed
+            if dialog.result:
+                self.update_csv(data, dialog.result)
+                self.load_data()  # Refresh the table after editing data
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            traceback.print_exc()
     
     def update_csv(self, old_data, new_data):
         temp_file = self.file_path + '.tmp'
@@ -185,7 +191,7 @@ class Peralatan(customtkinter.CTkFrame):
             os.replace(temp_file, self.file_path)
             
             if updated:
-                messagebox.showinfo("Sukses", "Data penggunaan berhasil diperbarui.")
+                messagebox.showinfo("Sukses", "Data peralatan berhasil diperbarui.")
                 self.load_data() 
             else:
                 messagebox.showwarning("Peringatan", "Data tidak ditemukan.")
@@ -197,14 +203,9 @@ class Peralatan(customtkinter.CTkFrame):
 class TambahPeralatanDialog(customtkinter.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title("Tambah Penggunaan")
+        self.title("Tambah Peralatan")
         self.geometry("500x480")
         self.result = None
-
-        # self.id_label = customtkinter.CTkLabel(self, text="ID:")
-        # self.id_label.pack(pady=(10, 0))
-        # self.id_entry = customtkinter.CTkEntry(self)
-        # self.id_entry.pack(pady=(0, 10))
 
         self.nama_label = customtkinter.CTkLabel(self, text="Nama:")
         self.nama_label.pack()
@@ -225,28 +226,20 @@ class TambahPeralatanDialog(customtkinter.CTkToplevel):
         self.submit_button.pack(pady=10)
 
     def submit(self):
-        # id = self.id_entry.get()
         nama = self.nama_entry.get()
         status = self.status_combobox.get()
-        # jumlah = self.jumlah_entry.get()
 
-        if not all([nama, status, jumlah]):
+        if not all([nama, status]):
             messagebox.showerror("Error", "Semua field harus diisi.")
             return
         
-        try:
-            jumlah = int(jumlah)
-        except ValueError:
-            messagebox.showerror("Error", "Jumlah harus berupa angka.")
-            return
-
-        self.result = [nama, status, jumlah]
+        self.result = [nama, status]
         self.destroy()
 
-class EditPenggunaanDialog(customtkinter.CTkToplevel):
+class EditPeralatanDialog(customtkinter.CTkToplevel):
     def __init__(self, parent, data):
         super().__init__(parent)
-        self.title("Edit Penggunaan")
+        self.title("Edit Peralatan")
         self.geometry("500x480")
         self.result = None
 
@@ -262,19 +255,12 @@ class EditPenggunaanDialog(customtkinter.CTkToplevel):
         self.status_combobox.set(data[1])
         self.status_combobox.pack(pady=(0, 10))
 
-        # self.jumlah_label = customtkinter.CTkLabel(self, text="Jumlah:")
-        # self.jumlah_label.pack()
-        # self.jumlah_entry = customtkinter.CTkEntry(self)
-        # self.jumlah_entry.insert(0, data[2])
-        # self.jumlah_entry.pack(pady=(0, 10))
-
         self.submit_button = customtkinter.CTkButton(self, text="Update", command=self.submit)
         self.submit_button.pack(pady=10)
 
     def submit(self):
         nama = self.nama_entry.get()
         status = self.status_combobox.get()
-        # jumlah = self.jumlah_entry.get()
 
         if not all([nama, status]):
             messagebox.showerror("Error", "Semua field harus diisi.")

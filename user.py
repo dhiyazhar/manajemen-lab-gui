@@ -13,8 +13,8 @@ class User(customtkinter.CTkFrame):
         
         self.dialog = None
 
-        self.grid_columnconfigure(0, weight=1)  # Biar label memenuhi horizontal
-        self.grid_rowconfigure(1, weight=1) # Button frame tidak perlu melar
+        self.grid_columnconfigure(0, weight=1) 
+        self.grid_rowconfigure(1, weight=1) 
 
         self.button_frame = customtkinter.CTkFrame(self, fg_color="transparent")
         self.button_frame.grid(row=0, column=0, sticky="nw", padx=20, pady=(50, 0)) 
@@ -31,7 +31,6 @@ class User(customtkinter.CTkFrame):
         self.user_table_frame = customtkinter.CTkFrame(self)
         self.user_table_frame.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
 
-        # Buat Treeview di dalam tabel_pengguna_frame
         self.table_wrapper = customtkinter.CTkFrame(self.user_table_frame)
         self.table_wrapper.pack(fill="both", expand=True, padx=20, pady=20)
         
@@ -259,6 +258,8 @@ class EditUserDialog(customtkinter.CTkToplevel):
 
         self.submit_button = customtkinter.CTkButton(self, text="Update", command=self.submit)
         self.submit_button.pack(pady=10)
+
+        self.after(100, self.grab_set)
 
     def submit(self):
         nama = self.nama_entry.get()
