@@ -5,9 +5,10 @@ from datetime import datetime
 import customtkinter
 import tkinter.ttk as ttk
 from tkinter import messagebox
+from crud import CRUD
 
 
-class Penggunaan(customtkinter.CTkFrame):
+class Penggunaan(customtkinter.CTkFrame, CRUD):
     def __init__(self, master, **kwargs):
         super().__init__(master, fg_color="transparent", **kwargs)
         
@@ -22,9 +23,9 @@ class Penggunaan(customtkinter.CTkFrame):
         self.button_frame.grid(row=0, column=0, sticky="nw", padx=20, pady=(50, 0)) 
         self.button_frame.grid_columnconfigure((0, 1, 2), weight=1, uniform="kolom") 
 
-        self.b_add_usage = Button(self.button_frame, text="Tambah Penggunaan", command=self.tambah_penggunaan) 
-        self.b_delete_usage = Button(self.button_frame, text="Hapus Penggunaan", command=self.hapus_penggunaan)
-        self.b_edit_usage = Button(self.button_frame, text="Edit Penggunaan", command=self.edit_penggunaan)
+        self.b_add_usage = Button(self.button_frame, text="Tambah Penggunaan", command=self.add_data) 
+        self.b_delete_usage = Button(self.button_frame, text="Hapus Penggunaan", command=self.delete_data)
+        self.b_edit_usage = Button(self.button_frame, text="Edit Penggunaan", command=self.edit_data)
 
         self.b_add_usage.grid(row=0, column=0, padx=5, pady=5, sticky="nsew") 
         self.b_delete_usage.grid(row=0, column=1, padx=5, pady=5, sticky="nsew") 
@@ -97,16 +98,16 @@ class Penggunaan(customtkinter.CTkFrame):
         except FileNotFoundError:
             print(f"File {self.file_path} tidak ditemukan.")
     
-    def tambah_penggunaan(self):
+    def add_data(self):
         if self.dialog is None or not self.dialog.winfo_exists():
             self.dialog = TambahPenggunaanDialog(self)
-            self.dialog.grab_set()  # Prevent interaction with the main window
+            self.dialog.grab_set()
             self.wait_window(self.dialog)
         if self.dialog.result:
             self.add_csv(self.dialog.result)
-            self.load_data()  # Refresh the table after adding new data
+            self.load_data()  
         else:
-            self.dialog.focus()  # Refresh the table after adding new data
+            self.dialog.focus()  
     
     def add_csv(self, data):
         try:
@@ -117,7 +118,7 @@ class Penggunaan(customtkinter.CTkFrame):
         except Exception as e:
             messagebox.showerror("Error", f"Gagal menambahkan data: {str(e)}")
     
-    def hapus_penggunaan(self):
+    def delete_data(self):
         selected_item = self.table.selection()
         if not selected_item:
             messagebox.showwarning("Peringatan", "Pilih data yang ingin dihapus terlebih dahulu.")
@@ -156,7 +157,7 @@ class Penggunaan(customtkinter.CTkFrame):
             if os.path.exists(temp_file):
                 os.remove(temp_file)
 
-    def edit_penggunaan(self):
+    def edit_data(self):
         selected_item = self.table.selection()
         if not selected_item:
             messagebox.showwarning("Peringatan", "Pilih data yang ingin diedit terlebih dahulu.")

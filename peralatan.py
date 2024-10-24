@@ -5,9 +5,10 @@ import tkinter.ttk as ttk
 from tkinter import messagebox
 import customtkinter
 from penggunaan import Button, CustomTreeviewStyle
+from crud import CRUD
 
 
-class Peralatan(customtkinter.CTkFrame):
+class Peralatan(customtkinter.CTkFrame, CRUD):
     def __init__(self, master, **kwargs):
         super().__init__(master, fg_color="transparent", **kwargs)
         
@@ -22,9 +23,9 @@ class Peralatan(customtkinter.CTkFrame):
         self.button_frame.grid(row=0, column=0, sticky="nw", padx=20, pady=(50, 0)) 
         self.button_frame.grid_columnconfigure((0, 1, 2), weight=1, uniform="kolom") 
 
-        self.b_add_inventory = Button(self.button_frame, text="Tambah Inventori Peralatan", command=self.add_inventory) 
-        self.b_delete_inventory = Button(self.button_frame, text="Hapus Inventori Peralatan", command=self.delete_inventory)
-        self.b_edit_inventory = Button(self.button_frame, text="Edit Inventori Peralatan", command=self.edit_inventory)
+        self.b_add_inventory = Button(self.button_frame, text="Tambah Inventori Peralatan", command=self.add_data) 
+        self.b_delete_inventory = Button(self.button_frame, text="Hapus Inventori Peralatan", command=self.delete_data)
+        self.b_edit_inventory = Button(self.button_frame, text="Edit Inventori Peralatan", command=self.edit_data)
 
         self.b_add_inventory.grid(row=0, column=0, padx=5, pady=5, sticky="nsew") 
         self.b_delete_inventory.grid(row=0, column=1, padx=5, pady=5, sticky="nsew") 
@@ -87,7 +88,7 @@ class Peralatan(customtkinter.CTkFrame):
         except FileNotFoundError:
             print(f"File {self.file_path} tidak ditemukan.")   
             
-    def add_inventory(self):
+    def add_data(self):
         if self.dialog is None or not self.dialog.winfo_exists():
             self.dialog = TambahPeralatanDialog(self)
             self.dialog.grab_set()  
@@ -107,7 +108,7 @@ class Peralatan(customtkinter.CTkFrame):
         except Exception as e:
             messagebox.showerror("Error", f"Gagal menambahkan data: {str(e)}")
     
-    def delete_inventory(self):
+    def delete_data(self):
         selected_item = self.inventory_table.selection()
         if not selected_item:
             messagebox.showwarning("Peringatan", "Pilih data yang ingin dihapus terlebih dahulu.")
@@ -148,7 +149,7 @@ class Peralatan(customtkinter.CTkFrame):
             if os.path.exists(temp_file):
                 os.remove(temp_file)
     
-    def edit_inventory(self):
+    def edit_data(self):
         selected_item = self.inventory_table.selection()
         if not selected_item:
             messagebox.showwarning("Peringatan", "Pilih data yang ingin diedit terlebih dahulu.")
