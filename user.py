@@ -5,8 +5,9 @@ import customtkinter
 import tkinter.ttk as ttk
 from tkinter import messagebox
 from penggunaan import Button, CustomTreeviewStyle
+from crud import CRUD
 
-class User(customtkinter.CTkFrame): 
+class User(customtkinter.CTkFrame, CRUD): 
     def __init__(self, master, **kwargs):
         super().__init__(master, fg_color="transparent", **kwargs)
         
@@ -21,9 +22,9 @@ class User(customtkinter.CTkFrame):
         self.button_frame.grid(row=0, column=0, sticky="nw", padx=20, pady=(50, 0)) 
         self.button_frame.grid_columnconfigure((0, 1, 2), weight=1, uniform="kolom") 
 
-        self.b_add_user = Button(self.button_frame, text="Tambah User", command=self.add_user) 
-        self.b_delete_user = Button(self.button_frame, text="Hapus User", command=self.delete_user)
-        self.b_edit_user = Button(self.button_frame, text="Edit User", command=self.edit_user)
+        self.b_add_user = Button(self.button_frame, text="Tambah User", command=self.add_data) 
+        self.b_delete_user = Button(self.button_frame, text="Hapus User", command=self.delete_data)
+        self.b_edit_user = Button(self.button_frame, text="Edit User", command=self.edit_data)
 
         self.b_add_user.grid(row=0, column=0, padx=5, pady=5, sticky="nsew") 
         self.b_delete_user.grid(row=0, column=1, padx=5, pady=5, sticky="nsew") 
@@ -87,10 +88,11 @@ class User(customtkinter.CTkFrame):
         except FileNotFoundError:
             print(f"File {self.file_path} tidak ditemukan.")
     
-    def add_user(self):
+    def add_data(self):
         if self.dialog is None or not self.dialog.winfo_exists():
             self.dialog = AddUserDialog(self)
-            self.dialog.grab_set()  
+            self.dialog.wait_visibility()
+            self.dialog.grab_set_global() 
             self.wait_window(self.dialog)
         if self.dialog.result:
             self.add_csv(self.dialog.result)
@@ -107,7 +109,7 @@ class User(customtkinter.CTkFrame):
         except Exception as e:
             messagebox.showerror("Error", f"Gagal menambahkan data: {str(e)}")
     
-    def delete_user(self):
+    def delete_data(self):
         selected_user = self.user_table.selection()
         if not selected_user:
             messagebox.showwarning("Peringatan", "Pilih data yang ingin dihapus terlebih dahulu.")
@@ -148,7 +150,7 @@ class User(customtkinter.CTkFrame):
             if os.path.exists(temp_file):
                 os.remove(temp_file)
     
-    def edit_user(self):
+    def edit_data(self):
         selected_item = self.user_table.selection()
         if not selected_item:
             messagebox.showwarning("Peringatan", "Pilih data yang ingin diedit terlebih dahulu.")
