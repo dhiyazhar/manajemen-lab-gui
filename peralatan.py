@@ -6,6 +6,7 @@ from tkinter import messagebox
 import customtkinter
 from penggunaan import Button, CustomTreeviewStyle
 
+
 class Peralatan(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, fg_color="transparent", **kwargs)
@@ -76,8 +77,6 @@ class Peralatan(customtkinter.CTkFrame):
                     width_ratio = max_width[col] / total_width
                     if col == 'No.':
                         self.inventory_table.column(col, width=50, stretch=False)
-                    # elif col == 'ID':
-                    #     self.inventory_table.column(col, width=80, stretch=False)
                     else:
                         self.inventory_table.column(col, width=int(width_ratio * 800), stretch=True)
                     self.inventory_table.heading(col, text=col.title())
@@ -216,11 +215,6 @@ class TambahPeralatanDialog(customtkinter.CTkToplevel):
         self.status_label.pack()
         self.status_combobox = customtkinter.CTkComboBox(self, values=["Baik", "Rusak Ringan", "Rusak Berat"])
         self.status_combobox.pack(pady=(0, 10))
-
-        self.jumlah_label = customtkinter.CTkLabel(self, text="Jumlah:")
-        self.jumlah_label.pack()
-        self.jumlah_entry = customtkinter.CTkEntry(self)
-        self.jumlah_entry.pack(pady=(0, 10))
 
         self.submit_button = customtkinter.CTkButton(self, text="Submit", command=self.submit)
         self.submit_button.pack(pady=10)

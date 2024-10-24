@@ -6,6 +6,7 @@ import customtkinter
 import tkinter.ttk as ttk
 from tkinter import messagebox
 
+
 class Penggunaan(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, fg_color="transparent", **kwargs)
@@ -125,7 +126,7 @@ class Penggunaan(customtkinter.CTkFrame):
         confirm = messagebox.askyesno("Konfirmasi", "Apakah Anda yakin ingin menghapus data ini?")
         if confirm:
             item_values = self.table.item(selected_item)['values']
-            self.delete_csv(item_values[1:])  # Skip the "No." column
+            self.delete_csv(item_values[1:]) 
     
     def delete_csv(self, row_data):
         temp_file = self.file_path + '.tmp'
@@ -147,7 +148,7 @@ class Penggunaan(customtkinter.CTkFrame):
             
             if deleted:
                 messagebox.showinfo("Sukses", "Data penggunaan berhasil dihapus.")
-                self.load_data()  # Refresh the table
+                self.load_data() 
             else:
                 messagebox.showwarning("Peringatan", "Data tidak ditemukan.")
         except Exception as e:
@@ -199,7 +200,7 @@ class Penggunaan(customtkinter.CTkFrame):
             
             if updated:
                 messagebox.showinfo("Sukses", "Data penggunaan berhasil diperbarui.")
-                self.load_data()  # Refresh the table
+                self.load_data() 
             else:
                 messagebox.showwarning("Peringatan", "Data tidak ditemukan.")
         except Exception as e:

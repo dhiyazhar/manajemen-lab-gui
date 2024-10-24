@@ -280,3 +280,4 @@ class EditUserDialog(customtkinter.CTkToplevel):
         self.destroy()
                 
 
+    

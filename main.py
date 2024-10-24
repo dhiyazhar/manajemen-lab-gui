@@ -9,6 +9,10 @@ from user import User
 customtkinter.set_appearance_mode("dark") 
 customtkinter.set_default_color_theme("blue") 
 
+
+# Inheritance dari library customtkinter dimana window aplikasi dibuat dengan meng-inherit
+# kelas customtkinter.CTk 
+
 class App(customtkinter.CTk): 
     def __init__(self):
         super().__init__()
